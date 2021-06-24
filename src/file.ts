@@ -21,7 +21,7 @@ import {
   ServiceObject,
   util,
 } from '@google-cloud/common';
-import {promisifyAll} from '@google-cloud/promisify';
+import { promisifyAll } from '@google-cloud/promisify';
 
 import compressible = require('compressible');
 import getStream = require('get-stream');
@@ -36,16 +36,16 @@ import * as once from 'onetime';
 import * as os from 'os';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const pumpify = require('pumpify');
-import * as resumableUpload from 'gcs-resumable-upload';
-import {Duplex, Writable, Readable, PassThrough} from 'stream';
+import * as resumableUpload from '@zencastr/gcs-resumable-upload';
+import { Duplex, Writable, Readable, PassThrough } from 'stream';
 import * as streamEvents from 'stream-events';
 import * as xdgBasedir from 'xdg-basedir';
 import * as zlib from 'zlib';
 import * as http from 'http';
 
-import {Storage} from './storage';
-import {Bucket} from './bucket';
-import {Acl} from './acl';
+import { Storage } from './storage';
+import { Bucket } from './bucket';
+import { Acl } from './acl';
 import {
   GetSignedUrlResponse,
   SigningError,
@@ -62,8 +62,8 @@ import {
 } from '@google-cloud/common/build/src/util';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const duplexify: DuplexifyConstructor = require('duplexify');
-import {normalize, objectKeyToLowercase, unicodeJSONStringify} from './util';
-import {GaxiosError, Headers, request as gaxiosRequest} from 'gaxios';
+import { normalize, objectKeyToLowercase, unicodeJSONStringify } from './util';
+import { GaxiosError, Headers, request as gaxiosRequest } from 'gaxios';
 import retry = require('async-retry');
 
 export type GetExpirationDateResponse = [Date];
@@ -94,7 +94,7 @@ export interface GetSignedPolicyOptions {
   acl?: string;
   successRedirect?: string;
   successStatus?: string;
-  contentLengthRange?: {min?: number; max?: number};
+  contentLengthRange?: { min?: number; max?: number };
 }
 
 export type GenerateSignedPostPolicyV2Options = GetSignedPolicyOptions;
@@ -501,7 +501,7 @@ class File extends ServiceObject<File> {
    * const file = myBucket.file('my-file');
    */
   constructor(bucket: Bucket, name: string, options: FileOptions = {}) {
-    const requestQueryObject: {generation?: number; userProject?: string} = {};
+    const requestQueryObject: { generation?: number; userProject?: string } = {};
 
     let generation: number;
     if (options.generation !== null) {
@@ -1041,7 +1041,7 @@ class File extends ServiceObject<File> {
 
     newFile = newFile! || destBucket.file(destName);
 
-    const headers: {[index: string]: string | undefined} = {};
+    const headers: { [index: string]: string | undefined } = {};
 
     if (this.encryptionKey !== undefined) {
       headers['x-goog-copy-source-encryption-algorithm'] = 'AES256';
@@ -1203,7 +1203,7 @@ class File extends ServiceObject<File> {
    *   .pipe(fs.createWriteStream('/Users/stephen/logfile.txt'));
    */
   createReadStream(options: CreateReadStreamOptions = {}): Readable {
-    options = Object.assign({decompress: true}, options);
+    options = Object.assign({ decompress: true }, options);
     const rangeRequest =
       typeof options.start === 'number' || typeof options.end === 'number';
     const tailRequest = options.end! < 0;
@@ -1276,7 +1276,7 @@ class File extends ServiceObject<File> {
         qs: query,
       };
 
-      const hashes: {crc32c?: string; md5?: string} = {};
+      const hashes: { crc32c?: string; md5?: string } = {};
 
       this.requestStream(reqOpts)
         .on('error', err => {
@@ -1333,7 +1333,7 @@ class File extends ServiceObject<File> {
               });
           }
 
-          validateStream = hashStreamValidation({crc32c, md5});
+          validateStream = hashStreamValidation({ crc32c, md5 });
           throughStreams.push(validateStream);
         }
 
@@ -1354,7 +1354,7 @@ class File extends ServiceObject<File> {
         rawResponseStream
           .on('error', onComplete)
           .on('end', onComplete)
-          .pipe(throughStream, {end: false});
+          .pipe(throughStream, { end: false });
       };
       // This is hooked to the `complete` event from the request stream. This is
       // our chance to validate the data and let the user know if anything went
@@ -1385,7 +1385,7 @@ class File extends ServiceObject<File> {
         // against the compressed version of the object.
         if (!isServedCompressed) {
           try {
-            await this.getMetadata({userProject: options.userProject});
+            await this.getMetadata({ userProject: options.userProject });
           } catch (e) {
             throughStream.destroy(e);
             return;
@@ -1729,7 +1729,7 @@ class File extends ServiceObject<File> {
    */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   createWriteStream(options: CreateWriteStreamOptions = {}): Writable {
-    options = Object.assign({metadata: {}}, options);
+    options = Object.assign({ metadata: {} }, options);
 
     if (options.contentType) {
       options.metadata.contentType = options.contentType;
@@ -1823,7 +1823,7 @@ class File extends ServiceObject<File> {
         // it now to confirm that it won't have any issues. That way, if we catch the
         // issue before we start the resumable upload, we can instead start a simple
         // upload.
-        fs.mkdir(configDir, {mode: 0o0700}, err => {
+        fs.mkdir(configDir, { mode: 0o0700 }, err => {
           if (!err) {
             // We successfully created a configuration directory that
             // gcs-resumable-upload will use.
@@ -2650,7 +2650,7 @@ class File extends ServiceObject<File> {
     const todayISO = dateFormat.format(now, 'YYYYMMDD', true);
 
     const sign = async () => {
-      const {client_email} = await this.storage.authClient.getCredentials();
+      const { client_email } = await this.storage.authClient.getCredentials();
       const credential = `${client_email}/${todayISO}/auto/storage/goog4_request`;
 
       fields = {
@@ -2666,7 +2666,7 @@ class File extends ServiceObject<File> {
 
       Object.entries(fields).forEach(([key, value]) => {
         if (!key.startsWith('x-ignore-')) {
-          conditions.push({[key]: value});
+          conditions.push({ [key]: value });
         }
       });
 
@@ -2998,9 +2998,8 @@ class File extends ServiceObject<File> {
   isPublic(callback?: IsPublicCallback): Promise<IsPublicResponse> | void {
     gaxiosRequest({
       method: 'HEAD',
-      url: `http://${
-        this.bucket.name
-      }.storage.googleapis.com/${encodeURIComponent(this.name)}`,
+      url: `http://${this.bucket.name
+        }.storage.googleapis.com/${encodeURIComponent(this.name)}`,
     }).then(
       () => callback!(null, true),
       (err: GaxiosError) => {
@@ -3094,7 +3093,7 @@ class File extends ServiceObject<File> {
     // You aren't allowed to set both predefinedAcl & acl properties on a file,
     // so acl must explicitly be nullified, destroying all previous acls on the
     // file.
-    const metadata = extend({}, options.metadata, {acl: null});
+    const metadata = extend({}, options.metadata, { acl: null });
 
     this.setMetadata(metadata, query, callback!);
   }
@@ -3899,4 +3898,4 @@ promisifyAll(File, {
  * @name module:@google-cloud/storage.File
  * @see File
  */
-export {File};
+export { File };
