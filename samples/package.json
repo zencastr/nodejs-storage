@@ -16,14 +16,14 @@
     "test": "mocha system-test/*.js --timeout 600000"
   },
   "dependencies": {
-    "@google-cloud/pubsub": "^2.0.0",
+    "@google-cloud/pubsub": "4.0.0",
     "@google-cloud/storage": "^5.8.5",
-    "uuid": "^8.0.0",
+    "uuid": "11.1.1",
     "yargs": "^16.0.0"
   },
   "devDependencies": {
     "chai": "^4.2.0",
-    "mocha": "^8.0.0",
+    "mocha": "10.6.0",
     "node-fetch": "^2.3.0",
     "p-limit": "^3.1.0"
   }
